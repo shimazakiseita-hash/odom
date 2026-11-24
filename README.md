@@ -1,5 +1,7 @@
 # odom
 
+![test](https://github.com/shimazakiseita-hash/odom/actions/workflows/test.yml/badge.svg)
+
 並進速度と角速度の列から、ロボットの自己位置を推定するコマンド
 
 ## 概要
@@ -43,32 +45,32 @@ $ echo '1 1.5707963267948966 1' | ./odom
 
 ### パイプでの使用例
 
-`path.txt`と`log.csv`はリポジトリに含まれていないので、`cat`で表示している内容のファイルを用意して試す。
+例で使うファイルは`sample`ディレクトリに入っている。
 
 速度の列を書いたファイルを標準入力から読ませる例。`tail -n 1`で最終的な位置だけを取り出し、`-d`で向きを度で確認している。
 
 ```
-$ cat path.txt
+$ cat sample/path.txt
 # v w dt
 1 0 1
 1 1.5707963267948966 1
 1 0 1
-$ ./odom < path.txt
+$ ./odom < sample/path.txt
 1.000 0.000 0.000
 1.637 0.637 1.571
 1.637 1.637 1.571
-$ ./odom -d < path.txt | tail -n 1
+$ ./odom -d < sample/path.txt | tail -n 1
 1.637 1.637 90.000
 ```
 
 ロボットが記録したCSVのログから、awkで速度と時間の列だけを取り出してodomに渡す例。`NR > 1`で見出しの行を飛ばし、2〜4列目をv、ω、dtとして渡している。
 
 ```
-$ cat log.csv
+$ cat sample/log.csv
 t,v,w,dt
 0.0,1,0,1
 1.0,1,1.5707963267948966,1
-$ awk -F, 'NR > 1 {print $2, $3, $4}' log.csv | ./odom
+$ awk -F, 'NR > 1 {print $2, $3, $4}' sample/log.csv | ./odom
 1.000 0.000 0.000
 1.637 0.637 1.571
 ```
