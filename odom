@@ -135,3 +135,6 @@ if __name__ == "__main__":
         devnull = os.open(os.devnull, os.O_WRONLY)
         os.dup2(devnull, sys.stdout.fileno())
         sys.exit(1)
+    except KeyboardInterrupt:
+        # Ctrl+C で止めたときはトレースバックを出さずに終わる
+        sys.exit(130)

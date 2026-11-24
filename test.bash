@@ -195,5 +195,10 @@ out=$(echo '1.50 0 1' | ./odom -p)
 [ "$?" = 0 ] || ng "$LINENO"
 [ "${out}" = "1.50 0 1 1.500 0.000 0.000" ] || ng "$LINENO"
 
+### CTRL+C ###
+err=$(sleep 3 | timeout --preserve-status -s INT 0.5 ./odom 2>&1)
+[ "$?" = 130 ] || ng "$LINENO"
+[ "${err}" = "" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res
