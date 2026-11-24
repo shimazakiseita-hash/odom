@@ -58,8 +58,24 @@ def pose(text):
     return values
 
 
+def positive(text):
+    # -w の値を正の有限値として読む
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError('数値で指定してください')
+    if not math.isfinite(value) or value <= 0:
+        raise argparse.ArgumentTypeError('正の有限の数値で指定してください')
+    return value
+
+
+def wheel(vl, vr, tread):
+    # 左右の車輪速度を並進速度と角速度に変換する
+    return (vr + vl) / 2, (vr - vl) / tread
+
+
 def parse_line(text):
-    # 入力1行を v, w, dt にする
+    # 入力1行を3つの数値にする
     cols = text.split()
     if len(cols) != 3:
         raise ValueError('列の数が3ではありません')
@@ -81,6 +97,8 @@ def main():
     parser.add_argument('-i', type=pose, default=[0.0, 0.0, 0.0],
                         metavar='X,Y,TH', help='初期位置（TH は rad）')
     parser.add_argument('-d', action='store_true', help='θ を度で出力する')
+    parser.add_argument('-w', type=positive, metavar='W',
+                        help='車輪間距離 [m]。入力を vl vr dt として読む')
     args = parser.parse_args()
     step = STEPS[args.m]
     x, y, th = args.i
@@ -89,10 +107,14 @@ def main():
         if not text or text.startswith('#'):
             continue
         try:
-            v, w, dt = parse_line(text)
+            c1, c2, dt = parse_line(text)
         except ValueError as e:
             print(f'odom: {n}行目: {e}', file=sys.stderr)
             sys.exit(1)
+        if args.w is None:
+            v, w = c1, c2
+        else:
+            v, w = wheel(c1, c2, args.w)
         x, y, th = step(x, y, th, v, w, dt)
         th = normalize(th)
         out_th = math.degrees(th) if args.d else th

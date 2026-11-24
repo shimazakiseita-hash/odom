@@ -132,5 +132,43 @@ out=$(awk -F, 'NR > 1 {print $2, $3, $4}' sample/log.csv | ./odom)
 [ "$?" = 0 ] || ng "$LINENO"
 [ "${out}" = "$(printf '1.000 0.000 0.000\n1.637 0.637 1.571')" ] || ng "$LINENO"
 
+### WHEEL ###
+out=$(echo '0 1.5707963267948966 1' | ./odom -w 1)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.500 0.500 1.571" ] || ng "$LINENO"
+
+out=$(echo '1 1 1' | ./odom -w 0.3)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1.000 0.000 0.000" ] || ng "$LINENO"
+
+out=$(echo '-1.5707963267948966 1.5707963267948966 1' | ./odom -w 1)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.000 0.000 3.142" ] || ng "$LINENO"
+
+out=$(echo '0 1.5707963267948966 1' | ./odom -w 1 -m euler)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.785 0.000 1.571" ] || ng "$LINENO"
+
+### STRANGE WHEEL OPTION ###
+out=$(echo '1 1 1' | ./odom -w 0 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 1 1' | ./odom -w -1 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 1 1' | ./odom -w=-1 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 1 1' | ./odom -w abc 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 1 1' | ./odom -w nan 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res
