@@ -53,5 +53,14 @@ out=$(echo '1 1.5707963267948966 1' | ./odom -m arc)
 [ "$?" = 0 ] || ng "$LINENO"
 [ "${out}" = "0.637 0.637 1.571" ] || ng "$LINENO"
 
+### INITIAL POSE ###
+out=$(echo '1 0 1' | ./odom -i 1,2,0)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "2.000 2.000 0.000" ] || ng "$LINENO"
+
+out=$(echo '1 0 1' | ./odom -i=-1,0,3.141592653589793)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "-2.000 0.000 3.142" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res

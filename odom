@@ -43,13 +43,29 @@ def euler_step(x, y, th, v, w, dt):
 STEPS = {'arc': arc_step, 'euler': euler_step}
 
 
+def pose(text):
+    # -i の値 X,Y,TH を読む
+    parts = text.split(',')
+    if len(parts) != 3:
+        raise argparse.ArgumentTypeError('X,Y,TH の形式で指定してください')
+    try:
+        values = [float(p) for p in parts]
+    except ValueError:
+        raise argparse.ArgumentTypeError('数値で指定してください')
+    if not all(math.isfinite(v) for v in values):
+        raise argparse.ArgumentTypeError('有限の数値で指定してください')
+    return values
+
+
 def main():
     parser = argparse.ArgumentParser(description='速度の列から自己位置を推定する')
     parser.add_argument('-m', choices=STEPS, default='arc',
                         help='積分方式（デフォルト: arc）')
+    parser.add_argument('-i', type=pose, default=[0.0, 0.0, 0.0],
+                        metavar='X,Y,TH', help='初期位置（TH は rad）')
     args = parser.parse_args()
     step = STEPS[args.m]
-    x = y = th = 0.0
+    x, y, th = args.i
     for line in sys.stdin:
         v, w, dt = map(float, line.split())
         x, y, th = step(x, y, th, v, w, dt)
