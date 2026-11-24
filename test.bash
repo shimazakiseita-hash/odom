@@ -170,5 +170,30 @@ out=$(echo '1 1 1' | ./odom -w nan 2> /dev/null)
 [ "$?" = 2 ] || ng "$LINENO"
 [ "${out}" = "" ] || ng "$LINENO"
 
+### PASS THROUGH ###
+out=$(echo '1 0 1' | ./odom -p)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1 0 1 1.000 0.000 0.000" ] || ng "$LINENO"
+
+out=$(printf '# c\n\n1 0 1\n' | ./odom -p)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1 0 1 1.000 0.000 0.000" ] || ng "$LINENO"
+
+out=$(echo '1 1.5707963267948966 1' | ./odom -p -d)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1 1.5707963267948966 1 0.637 0.637 90.000" ] || ng "$LINENO"
+
+out=$(echo '0 1.5707963267948966 1' | ./odom -p -w 1)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0 1.5707963267948966 1 0.500 0.500 1.571" ] || ng "$LINENO"
+
+out=$(echo '  1   0  1 ' | ./odom -p)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1 0 1 1.000 0.000 0.000" ] || ng "$LINENO"
+
+out=$(echo '1.50 0 1' | ./odom -p)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1.50 0 1 1.500 0.000 0.000" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res

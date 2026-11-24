@@ -99,6 +99,8 @@ def main():
     parser.add_argument('-d', action='store_true', help='θ を度で出力する')
     parser.add_argument('-w', type=positive, metavar='W',
                         help='車輪間距離 [m]。入力を vl vr dt として読む')
+    parser.add_argument('-p', action='store_true',
+                        help='各行の先頭に入力の3列を付けて出力する')
     args = parser.parse_args()
     step = STEPS[args.m]
     x, y, th = args.i
@@ -118,7 +120,11 @@ def main():
         x, y, th = step(x, y, th, v, w, dt)
         th = normalize(th)
         out_th = math.degrees(th) if args.d else th
-        print(f"{fmt(x)} {fmt(y)} {fmt(out_th)}", flush=True)
+        result = f"{fmt(x)} {fmt(y)} {fmt(out_th)}"
+        if args.p:
+            # 入力の3列を、空白を1つにそろえて先頭に付ける
+            result = ' '.join(text.split()) + ' ' + result
+        print(result, flush=True)
 
 
 if __name__ == "__main__":
