@@ -44,5 +44,14 @@ out=$(echo '0 9.42477796076938 1' | ./odom)
 [ "$?" = 0 ] || ng "$LINENO"
 [ "${out}" = "0.000 0.000 3.142" ] || ng "$LINENO"
 
+### EULER ###
+out=$(echo '1 1.5707963267948966 1' | ./odom -m euler)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "1.000 0.000 1.571" ] || ng "$LINENO"
+
+out=$(echo '1 1.5707963267948966 1' | ./odom -m arc)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.637 0.637 1.571" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res

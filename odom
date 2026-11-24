@@ -2,8 +2,9 @@
 # SPDX-FileCopyrightText: 2026 Seita Shimazaki
 # SPDX-License-Identifier: BSD-3-Clause
 
-import sys
+import argparse
 import math
+import sys
 
 
 def normalize(th):
@@ -31,11 +32,27 @@ def arc_step(x, y, th, v, w, dt):
     return x, y, th2
 
 
+def euler_step(x, y, th, v, w, dt):
+    # オイラー法で位置と姿勢を更新する。
+    x += v * math.cos(th) * dt
+    y += v * math.sin(th) * dt
+    th += w * dt
+    return x, y, th
+
+
+STEPS = {'arc': arc_step, 'euler': euler_step}
+
+
 def main():
+    parser = argparse.ArgumentParser(description='速度の列から自己位置を推定する')
+    parser.add_argument('-m', choices=STEPS, default='arc',
+                        help='積分方式（デフォルト: arc）')
+    args = parser.parse_args()
+    step = STEPS[args.m]
     x = y = th = 0.0
     for line in sys.stdin:
         v, w, dt = map(float, line.split())
-        x, y, th = arc_step(x, y, th, v, w, dt)
+        x, y, th = step(x, y, th, v, w, dt)
         th = normalize(th)
         print(f"{fmt(x)} {fmt(y)} {fmt(th)}", flush=True)
 
