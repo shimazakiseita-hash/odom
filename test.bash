@@ -118,5 +118,19 @@ out=$(printf '# start\n\n1 0 1\n   \n  # middle\n1 0 1\n' | ./odom)
 err=$( { yes '1 0 1' 2> /dev/null | ./odom 2>&3 | head -n 1 > /dev/null; } 3>&1 )
 [ "${err}" = "" ] || ng "$LINENO"
 
+### SAMPLE FILES ###
+out=$(./odom < sample/path.txt)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "$(printf '1.000 0.000 0.000\n1.637 0.637 1.571\n1.637 1.637 1.571')" ] || ng "$LINENO"
+
+out=$(./odom -d < sample/path.txt)
+[ "$?" = 0 ] || ng "$LINENO"
+last=$(echo "${out}" | tail -n 1)
+[ "${last}" = "1.637 1.637 90.000" ] || ng "$LINENO"
+
+out=$(awk -F, 'NR > 1 {print $2, $3, $4}' sample/log.csv | ./odom)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "$(printf '1.000 0.000 0.000\n1.637 0.637 1.571')" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res
