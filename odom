@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Seita Shimazaki
+# SPDX-License-Identifier: BSD-3-Clause
+
+import sys
+import math
+
+
+def arc_step(x, y, th, v, w, dt):
+    # 円弧の厳密解で位置と姿勢を更新する。
+    th2 = th + w * dt
+    if abs(w) < 1e-9:
+        x += v * math.cos(th) * dt
+        y += v * math.sin(th) * dt
+    else:
+        x += v / w * (math.sin(th2) - math.sin(th))
+        y += -v / w * (math.cos(th2) - math.cos(th))
+    return x, y, th2
+
+
+def main():
+    x = y = th = 0.0
+    for line in sys.stdin:
+        v, w, dt = map(float, line.split())
+        x, y, th = arc_step(x, y, th, v, w, dt)
+        print(f"{x:.3f} {y:.3f} {th:.3f}", flush=True)
+
+
+if __name__ == "__main__":
+    main()
