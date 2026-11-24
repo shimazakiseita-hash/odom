@@ -26,7 +26,7 @@ out=$(printf '' | ./odom)
 [ "${out}" = "" ] || ng "$LINENO"
 
 ### FULL CIRCLE ###
-out=$(yes '1 1.5707963267948966 1' | head -n 4 | ./odom)
+out=$(yes '1 1.5707963267948966 1' 2> /dev/null | head -n 4 | ./odom)
 [ "$?" = 0 ] || ng "$LINENO"
 last=$(echo "${out}" | tail -n 1)
 [ "${last}" = "0.000 0.000 0.000" ] || ng "$LINENO"
@@ -115,7 +115,7 @@ out=$(printf '# start\n\n1 0 1\n   \n  # middle\n1 0 1\n' | ./odom)
 [ "${out}" = "$(printf '1.000 0.000 0.000\n2.000 0.000 0.000')" ] || ng "$LINENO"
 
 ### BROKEN PIPE ###
-err=$( { yes '1 0 1' | ./odom | head -n 1 > /dev/null; } 2>&1 )
+err=$( { yes '1 0 1' 2> /dev/null | ./odom 2>&3 | head -n 1 > /dev/null; } 3>&1 )
 [ "${err}" = "" ] || ng "$LINENO"
 
 [ "${res}" = 0 ] && echo OK
