@@ -71,5 +71,52 @@ out=$(echo '0 -3.141592653589793 1' | ./odom -d)
 [ "$?" = 0 ] || ng "$LINENO"
 [ "${out}" = "0.000 0.000 180.000" ] || ng "$LINENO"
 
+### STRANGE INPUT ###
+out=$(echo '1 2' | ./odom 2> /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo 'a b c' | ./odom 2> /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 0 -1' | ./odom 2> /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo 'nan 0 1' | ./odom 2> /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 inf 1' | ./odom 2> /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(printf '1 0 1\n1 2\n1 0 1\n' | ./odom 2> /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${out}" = "1.000 0.000 0.000" ] || ng "$LINENO"
+
+err=$(printf '# c\n\n1 2\n' | ./odom 2>&1 > /dev/null)
+[ "$?" = 1 ] || ng "$LINENO"
+[ "${err}" = "odom: 3行目: 列の数が3ではありません" ] || ng "$LINENO"
+
+### STRANGE OPTION ###
+out=$(echo '1 0 1' | ./odom -m foo 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+out=$(echo '1 0 1' | ./odom -i 1,2 2> /dev/null)
+[ "$?" = 2 ] || ng "$LINENO"
+[ "${out}" = "" ] || ng "$LINENO"
+
+### COMMENT AND BLANK LINES ###
+out=$(printf '# start\n\n1 0 1\n   \n  # middle\n1 0 1\n' | ./odom)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "$(printf '1.000 0.000 0.000\n2.000 0.000 0.000')" ] || ng "$LINENO"
+
+### BROKEN PIPE ###
+err=$( { yes '1 0 1' | ./odom | head -n 1 > /dev/null; } 2>&1 )
+[ "${err}" = "" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res

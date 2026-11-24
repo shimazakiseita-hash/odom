@@ -4,6 +4,7 @@
 
 import argparse
 import math
+import os
 import sys
 
 
@@ -57,6 +58,22 @@ def pose(text):
     return values
 
 
+def parse_line(text):
+    # 入力1行を v, w, dt にする
+    cols = text.split()
+    if len(cols) != 3:
+        raise ValueError('列の数が3ではありません')
+    try:
+        v, w, dt = (float(c) for c in cols)
+    except ValueError:
+        raise ValueError('数値ではありません')
+    if not all(math.isfinite(a) for a in (v, w, dt)):
+        raise ValueError('有限の数値ではありません')
+    if dt < 0:
+        raise ValueError('dt が負です')
+    return v, w, dt
+
+
 def main():
     parser = argparse.ArgumentParser(description='速度の列から自己位置を推定する')
     parser.add_argument('-m', choices=STEPS, default='arc',
@@ -67,8 +84,15 @@ def main():
     args = parser.parse_args()
     step = STEPS[args.m]
     x, y, th = args.i
-    for line in sys.stdin:
-        v, w, dt = map(float, line.split())
+    for n, line in enumerate(sys.stdin, start=1):
+        text = line.strip()
+        if not text or text.startswith('#'):
+            continue
+        try:
+            v, w, dt = parse_line(text)
+        except ValueError as e:
+            print(f'odom: {n}行目: {e}', file=sys.stderr)
+            sys.exit(1)
         x, y, th = step(x, y, th, v, w, dt)
         th = normalize(th)
         out_th = math.degrees(th) if args.d else th
@@ -76,4 +100,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BrokenPipeError:
+        # 出力先（head など）が先に終了したときは黙って終わる
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+        sys.exit(1)
