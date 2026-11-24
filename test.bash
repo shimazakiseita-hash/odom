@@ -25,5 +25,24 @@ out=$(printf '' | ./odom)
 [ "$?" = 0 ] || ng "$LINENO"
 [ "${out}" = "" ] || ng "$LINENO"
 
+### FULL CIRCLE ###
+out=$(yes '1 1.5707963267948966 1' | head -n 4 | ./odom)
+[ "$?" = 0 ] || ng "$LINENO"
+last=$(echo "${out}" | tail -n 1)
+[ "${last}" = "0.000 0.000 0.000" ] || ng "$LINENO"
+
+### THETA PI ###
+out=$(echo '0 3.141592653589793 1' | ./odom)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.000 0.000 3.142" ] || ng "$LINENO"
+
+out=$(echo '0 -3.141592653589793 1' | ./odom)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.000 0.000 3.142" ] || ng "$LINENO"
+
+out=$(echo '0 9.42477796076938 1' | ./odom)
+[ "$?" = 0 ] || ng "$LINENO"
+[ "${out}" = "0.000 0.000 3.142" ] || ng "$LINENO"
+
 [ "${res}" = 0 ] && echo OK
 exit $res

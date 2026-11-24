@@ -6,6 +6,19 @@ import sys
 import math
 
 
+def normalize(th):
+    # 角度を (−π, π] にそろえる。
+    th = math.atan2(math.sin(th), math.cos(th))
+    if th <= -math.pi:
+        th = math.pi
+    return th
+
+
+def fmt(value):
+    # round で -0.0 になった値に 0.0 を足し、-0.000 を出さない。
+    return f"{round(value, 3) + 0.0:.3f}"
+
+
 def arc_step(x, y, th, v, w, dt):
     # 円弧の厳密解で位置と姿勢を更新する。
     th2 = th + w * dt
@@ -23,7 +36,8 @@ def main():
     for line in sys.stdin:
         v, w, dt = map(float, line.split())
         x, y, th = arc_step(x, y, th, v, w, dt)
-        print(f"{x:.3f} {y:.3f} {th:.3f}", flush=True)
+        th = normalize(th)
+        print(f"{fmt(x)} {fmt(y)} {fmt(th)}", flush=True)
 
 
 if __name__ == "__main__":
