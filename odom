@@ -63,6 +63,7 @@ def main():
                         help='積分方式（デフォルト: arc）')
     parser.add_argument('-i', type=pose, default=[0.0, 0.0, 0.0],
                         metavar='X,Y,TH', help='初期位置（TH は rad）')
+    parser.add_argument('-d', action='store_true', help='θ を度で出力する')
     args = parser.parse_args()
     step = STEPS[args.m]
     x, y, th = args.i
@@ -70,7 +71,8 @@ def main():
         v, w, dt = map(float, line.split())
         x, y, th = step(x, y, th, v, w, dt)
         th = normalize(th)
-        print(f"{fmt(x)} {fmt(y)} {fmt(th)}", flush=True)
+        out_th = math.degrees(th) if args.d else th
+        print(f"{fmt(x)} {fmt(y)} {fmt(out_th)}", flush=True)
 
 
 if __name__ == "__main__":
